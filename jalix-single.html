@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jalix — Global Freight Forwarding &amp; Customs Brokerage</title>
+<meta name="description" content="Jalix moves cargo across 40+ ports by ocean, air, and road — with customs cleared before you have to ask.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:        #06263B;
+  --sea:        #0E4B67;
+  --sea-2:      #14607F;
+  --accent:     #2FB8E6;
+  --accent-lt:  #8FE6FA;
+  --accent2:    #2FD3B0;
+  --fog:        #EAF6F8;
+  --fog-2:      #DCEFF2;
+  --paper-line: rgba(143,230,250,0.18);
+  --ink-text:   #123246;
+  --steel:      #8FB4BE;
+
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'Inter', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --max-w: 1240px;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ margin:0; background:var(--ink); color:var(--fog); font-family:var(--body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+ul{ margin:0; padding:0; list-style:none; }
+h1,h2,h3,h4{ margin:0; font-family:var(--display); font-weight:600; letter-spacing:-0.01em; }
+p{ margin:0; }
+@media (prefers-reduced-motion: reduce){ *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; } }
+.wrap{ max-width:var(--max-w); margin:0 auto; padding:0 32px; }
+.eyebrow{ font-family:var(--mono); font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); display:flex; align-items:center; gap:10px; }
+.eyebrow::before{ content:""; width:22px; height:1px; background:var(--accent); display:inline-block; }
+
+#globe-canvas{ position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; }
+
+.site-nav{ position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 0; transition:background .35s ease, padding .35s ease, border-color .35s ease, box-shadow .35s ease; border-bottom:1px solid rgba(47,184,230,0.12); background:rgba(6,38,59,0.28); backdrop-filter:blur(18px) saturate(160%); -webkit-backdrop-filter:blur(18px) saturate(160%); }
+.site-nav.solid{ background:rgba(6,38,59,0.6); backdrop-filter:blur(22px) saturate(180%); -webkit-backdrop-filter:blur(22px) saturate(180%); padding:14px 0; border-bottom:1px solid rgba(47,184,230,0.2); box-shadow:0 8px 32px rgba(0,0,0,0.25); }
+.site-nav .wrap{ display:flex; align-items:center; justify-content:space-between; }
+.brand{ display:flex; align-items:center; gap:12px; cursor:pointer; }
+.brand-mark{ width:36px; height:36px; border-radius:10px; border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:18px; font-weight:700; color:var(--accent-lt); flex-shrink:0; }
+.brand-name{ font-family:var(--display); font-size:21px; font-weight:700; letter-spacing:-0.02em; color:var(--fog); }
+.brand-name small{ display:block; font-family:var(--mono); font-weight:400; font-size:9.5px; letter-spacing:0.18em; color:var(--steel); text-transform:uppercase; margin-top:2px; }
+.nav-links{ display:flex; align-items:center; gap:36px; }
+.nav-links a{ font-family:var(--mono); font-size:13px; letter-spacing:0.05em; text-transform:uppercase; color:var(--fog); opacity:0.75; position:relative; padding:4px 0; }
+.nav-links a:hover{ opacity:1; }
+.nav-links a.active{ opacity:1; color:var(--accent-lt); }
+.nav-cta{ font-family:var(--mono); font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink) !important; background:var(--accent); padding:10px 18px; border-radius:8px; transition:background .2s ease; }
+.nav-cta:hover{ background:var(--accent-lt); }
+.nav-toggle{ display:none; }
+@media (max-width:860px){
+  .nav-links{ position:fixed; top:0; right:0; height:100vh; width:min(320px,80vw); background:var(--ink); flex-direction:column; justify-content:center; align-items:flex-start; padding:0 40px; gap:28px; transform:translateX(100%); transition:transform .4s ease; }
+  .nav-links.open{ transform:translateX(0); }
+  .nav-toggle{ display:flex; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; z-index:101; padding:6px; }
+  .nav-toggle span{ width:24px; height:2px; background:var(--fog); display:block; }
+}
+
+.btn{ position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:13px; letter-spacing:0.05em; text-transform:uppercase; padding:14px 26px; border-radius:8px; border:1px solid transparent; cursor:pointer; transition:all .2s ease; background:none; }
+.btn-primary{ background:var(--accent); color:var(--ink); box-shadow:0 6px 20px rgba(47,184,230,0.32); }
+.btn-primary:hover{ background:var(--accent-lt); transform:translateY(-1px); }
+.btn-ghost{ border-color:rgba(234,246,248,0.35); color:var(--fog); backdrop-filter:blur(10px); background:rgba(255,255,255,0.06); }
+.btn-ghost:hover{ border-color:var(--accent-lt); color:var(--accent-lt); }
+.btn-primary::after, .btn-ghost::after{ content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent); transform:skewX(-20deg); transition:left .6s ease; }
+.btn:hover::after{ left:130%; }
+
+.hero{ position:relative; min-height:100vh; overflow:hidden; display:flex; align-items:center; padding-top:110px; }
+.hero-bg-lines{ position:absolute; inset:0; opacity:0.5; pointer-events:none; background-image:linear-gradient(rgba(47,184,230,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(47,184,230,0.04) 1px, transparent 1px); background-size:64px 64px; }
+.hero .wrap{ position:relative; z-index:2; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; align-items:center; width:100%; }
+.hero-copy{ color:var(--fog); }
+.hero-copy .eyebrow{ margin-bottom:22px; }
+.hero h1{ font-size:clamp(44px,6vw,80px); line-height:1.0; letter-spacing:-0.02em; color:var(--fog); margin-bottom:26px; }
+.hero h1 em{ font-style:normal; color:var(--accent-lt); }
+.hero-sub{ font-size:18px; color:#BBDEE6; max-width:480px; margin-bottom:34px; }
+.hero-actions{ display:flex; gap:16px; flex-wrap:wrap; }
+
+.reveal{ opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
+.reveal.in{ opacity:1; transform:translateY(0); }
+.reveal-delay-1{ transition-delay:.1s; }
+.reveal-delay-2{ transition-delay:.2s; }
+.reveal-delay-3{ transition-delay:.3s; }
+
+section{ padding:110px 0; position:relative; z-index:1; overflow:hidden; }
+.section-head{ max-width:640px; margin-bottom:56px; }
+.section-head h2{ font-size:clamp(30px,4vw,44px); letter-spacing:-0.02em; margin-top:16px; line-height:1.08; color:var(--fog); }
+.section-dark{ color:var(--fog); }
+
+.stats-strip{ background:rgba(14,75,103,0.32); backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%); padding:52px 0; position:relative; z-index:1; border-top:1px solid rgba(143,230,250,0.1); border-bottom:1px solid rgba(143,230,250,0.1); }
+.stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+.stat{ text-align:left; padding:22px 22px; }
+.stat .num{ font-family:var(--display); font-weight:700; font-size:42px; color:var(--accent-lt); line-height:1; }
+.stat .label{ font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--steel); margin-top:8px; }
+
+.card-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+.service-card{ padding:30px 24px; transition:background .25s ease; }
+.service-card:hover{ background:rgba(255,255,255,0.62); }
+.service-card.glass-light h3{ color:var(--ink-text); }
+.service-card .tag{ font-family:var(--mono); font-size:11px; color:var(--accent2); letter-spacing:0.08em; }
+.service-card h3{ font-size:22px; letter-spacing:-0.01em; margin:14px 0 10px; }
+.service-card p{ font-size:14.5px; color:#4B5566; }
+
+@media (max-width:900px){
+  .card-grid{ grid-template-columns:repeat(2,1fr); }
+  .stats-grid{ grid-template-columns:repeat(2,1fr); row-gap:32px; }
+  .hero .wrap{ grid-template-columns:1fr; }
+  .hero-copy{ max-width:560px; }
+}
+@media (max-width:560px){
+  .card-grid{ grid-template-columns:1fr; }
+  .stats-grid{ grid-template-columns:1fr; }
+  section{ padding:76px 0; }
+}
+
+.process{ display:grid; grid-template-columns:repeat(5,1fr); gap:0; }
+.process-step{ padding:0 20px 0 0; position:relative; }
+.process-step:not(:last-child)::after{ content:""; position:absolute; top:18px; right:0; width:100%; height:1px; background:var(--paper-line); }
+.process-step .step-no{ font-family:var(--mono); font-size:13px; color:var(--accent); margin-bottom:14px; }
+.process-step h4{ font-size:18px; letter-spacing:-0.01em; margin-bottom:8px; color:var(--fog); }
+.process-step p{ font-size:13.5px; color:#B9D4DC; }
+@media (max-width:900px){ .process{ grid-template-columns:1fr; gap:36px; } .process-step::after{ display:none; } }
+
+.lane-table{ width:100%; border-collapse:collapse; }
+.lane-table th{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--steel); text-align:left; padding:12px 16px; border-bottom:1px solid var(--paper-line); }
+.lane-table td{ padding:18px 16px; border-bottom:1px solid var(--paper-line); font-size:15px; }
+.lane-table tr:hover td{ background:rgba(47,184,230,0.08); }
+.mono{ font-family:var(--mono); font-size:13px; color:var(--steel); }
+.lane-route{ font-family:var(--display); font-weight:600; font-size:19px; letter-spacing:-0.01em; color:var(--fog); }
+
+.cta-band{ padding:90px 0; text-align:center; }
+.cta-band h2{ color:var(--fog); font-size:clamp(28px,4.5vw,50px); letter-spacing:-0.02em; margin-bottom:26px; }
+.cta-band .cta-actions{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; }
+
+footer{ background:rgba(14,75,103,0.38); backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%); color:var(--fog); padding:64px 0 28px; position:relative; z-index:1; border-top:1px solid rgba(143,230,250,0.12); }
+.footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:48px; }
+.footer-col h5{ font-family:var(--mono); font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent-lt); margin-bottom:18px; }
+.footer-col p, .footer-col li{ font-size:14px; color:#A9CBD3; margin-bottom:10px; }
+.footer-col a:hover{ color:var(--accent-lt); }
+.footer-bottom{ border-top:1px solid rgba(47,184,230,0.15); padding-top:22px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-family:var(--mono); font-size:11.5px; color:var(--steel); letter-spacing:0.04em; }
+@media (max-width:800px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
+
+.section-intro{ padding:90px 0 70px; color:var(--fog); position:relative; overflow:hidden; }
+.section-intro h2{ font-size:clamp(34px,5vw,54px); letter-spacing:-0.02em; color:var(--fog); margin-top:18px; max-width:820px; }
+.section-intro .lede{ font-size:17px; color:#BBDEE6; max-width:560px; margin-top:20px; }
+
+.timeline{ position:relative; padding-left:28px; border-left:1px solid var(--paper-line); }
+.tl-item{ position:relative; padding-bottom:52px; }
+.tl-item:last-child{ padding-bottom:0; }
+.tl-item::before{ content:""; position:absolute; left:-33px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--accent); border:2px solid var(--ink); }
+.tl-item .yr{ font-family:var(--mono); font-size:13px; color:var(--accent); margin-bottom:6px; }
+.tl-item h4{ font-size:21px; letter-spacing:-0.01em; margin-bottom:8px; color:var(--fog); }
+.tl-item p{ font-size:14.5px; color:#B9D4DC; max-width:560px; }
+
+.team-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:28px; }
+.team-card .avatar{ width:100%; aspect-ratio:1; border-radius:14px; margin-bottom:16px; position:relative; overflow:hidden; }
+.team-card .avatar::after{ content: attr(data-initials); position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:700; font-size:36px; color:var(--accent-lt); opacity:0.85; }
+.team-card h4{ font-size:17px; letter-spacing:-0.01em; color:var(--fog); }
+.team-card .role{ font-family:var(--mono); font-size:11.5px; color:var(--accent2); text-transform:uppercase; margin-top:4px; }
+@media (max-width:900px){ .team-grid{ grid-template-columns:repeat(2,1fr); } }
+
+.service-detail{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:60px; align-items:center; padding:70px 0; border-bottom:1px solid var(--paper-line); }
+.service-detail:last-child{ border-bottom:none; }
+.service-detail.reverse{ grid-template-columns:1.1fr 0.9fr; }
+.service-detail.reverse .sd-visual{ order:2; }
+.sd-visual{ background:rgba(20,96,127,0.55); border:1px solid rgba(47,184,230,0.22); border-radius:16px; aspect-ratio:4/3; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; box-shadow:0 12px 36px rgba(6,38,59,0.3); backdrop-filter:blur(10px); transition:transform .4s ease, box-shadow .4s ease; }
+.sd-visual:hover{ box-shadow:0 20px 48px rgba(6,38,59,0.4), 0 0 0 1px rgba(47,184,230,0.35); }
+.sd-copy .eyebrow{ margin-bottom:16px; }
+.sd-copy h3{ font-size:clamp(24px,3vw,32px); letter-spacing:-0.01em; margin-bottom:16px; color:var(--fog); }
+.sd-copy p{ color:#B9D4DC; margin-bottom:18px; }
+.sd-list{ margin-top:20px; }
+.sd-list li{ font-size:14.5px; padding:10px 0; border-top:1px solid var(--paper-line); display:flex; justify-content:space-between; color:var(--fog); }
+.sd-list li .val{ font-family:var(--mono); color:var(--accent-lt); }
+@media (max-width:860px){ .service-detail, .service-detail.reverse{ grid-template-columns:1fr; } .service-detail.reverse .sd-visual{ order:0; } }
+
+.contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:64px; }
+.form-field{ margin-bottom:22px; }
+.form-field label{ display:block; font-family:var(--mono); font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); margin-bottom:8px; }
+.form-field input, .form-field select, .form-field textarea{ width:100%; padding:13px 14px; border:1px solid var(--paper-line); background:#fff; font-family:var(--body); font-size:14.5px; color:var(--ink-text); border-radius:8px; resize:vertical; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+.offices{ display:flex; flex-direction:column; gap:0; }
+.office .city{ font-family:var(--display); font-weight:600; font-size:21px; letter-spacing:-0.01em; color:var(--ink-text); }
+.office .coords{ font-family:var(--mono); font-size:12px; color:var(--accent); margin-top:4px; }
+.office .addr{ font-size:14px; color:#4B5566; margin-top:8px; }
+@media (max-width:860px){ .contact-grid{ grid-template-columns:1fr; gap:40px; } }
+.form-note{ font-size:12.5px; color:var(--steel); margin-top:14px; }
+
+/* ============================================================
+   GLASS / MOTION LAYER
+   ============================================================ */
+.blob-field{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:0.5; will-change:transform; }
+.blob-accent{ background:radial-gradient(circle, rgba(47,184,230,0.5), transparent 70%); }
+.blob-panel{ background:radial-gradient(circle, rgba(47,211,176,0.4), transparent 70%); }
+.blob-deep{ background:radial-gradient(circle, rgba(20,96,127,0.55), transparent 70%); }
+.blob-1{ width:420px; height:420px; top:-10%; left:-6%; animation:blobFloat 18s ease-in-out infinite; }
+.blob-2{ width:340px; height:340px; bottom:-12%; right:-4%; animation:blobFloat 22s ease-in-out infinite reverse; animation-delay:-4s; }
+.blob-3{ width:260px; height:260px; top:35%; left:55%; animation:blobFloat 16s ease-in-out infinite; animation-delay:-8s; }
+@keyframes blobFloat{
+  0%{ transform:translate(0,0) scale(1); }
+  33%{ transform:translate(28px,-36px) scale(1.08); }
+  66%{ transform:translate(-24px,24px) scale(0.95); }
+  100%{ transform:translate(0,0) scale(1); }
+}
+
+.glass{
+  background:rgba(20,96,127,0.28);
+  border:1px solid rgba(143,230,250,0.16);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-radius:14px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease, background .35s ease;
+}
+.glass:hover{ border-color:rgba(47,184,230,0.45); box-shadow:0 14px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(47,184,230,0.18), inset 0 1px 0 rgba(255,255,255,0.08); }
+.glass-light{
+  background:rgba(234,246,248,0.62);
+  border:1px solid rgba(255,255,255,0.6);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  border-radius:14px;
+  box-shadow:0 8px 28px rgba(6,38,59,0.16), inset 0 1px 0 rgba(255,255,255,0.5);
+  transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+.glass-light:hover{ border-color:rgba(47,184,230,0.5); box-shadow:0 16px 36px rgba(6,38,59,0.24), inset 0 1px 0 rgba(255,255,255,0.6); transform:translateY(-4px); background:rgba(234,246,248,0.78); }
+
+.nav-links a{ transition:opacity .2s ease, color .2s ease; }
+.nav-links a[data-section]::after{ content:""; position:absolute; left:0; bottom:-6px; width:0; height:1.5px; background:var(--accent-lt); transition:width .3s ease; }
+.nav-links a[data-section].active::after{ width:100%; }
+
+.ticker{ overflow:hidden; white-space:nowrap; border-top:1px solid rgba(47,184,230,0.15); border-bottom:1px solid rgba(47,184,230,0.15); background:rgba(20,96,127,0.15); backdrop-filter:blur(10px); position:relative; z-index:1; }
+.ticker-track{ display:inline-flex; align-items:center; gap:48px; padding:14px 0; animation:tickerScroll 32s linear infinite; }
+.ticker-track span{ font-family:var(--mono); font-size:12.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-lt); opacity:0.85; display:inline-flex; align-items:center; gap:10px; }
+.ticker-track span::before{ content:"◆"; font-size:8px; color:var(--accent); }
+@keyframes tickerScroll{ 0%{ transform:translateX(0); } 100%{ transform:translateX(-50%); } }
+
+.tilt{ transform-style:preserve-3d; will-change:transform; }
+.spotlight{ position:absolute; inset:0; pointer-events:none; z-index:1; background:radial-gradient(500px circle at var(--sx,50%) var(--sy,50%), rgba(47,184,230,0.16), transparent 60%); }
+
+.reveal-scale{ opacity:0; transform:scale(0.92); transition:opacity .8s ease, transform .8s ease; }
+.reveal-scale.in{ opacity:1; transform:scale(1); }
+.reveal-left{ opacity:0; transform:translateX(-34px); transition:opacity .8s ease, transform .8s ease; }
+.reveal-left.in{ opacity:1; transform:translateX(0); }
+.reveal-right{ opacity:0; transform:translateX(34px); transition:opacity .8s ease, transform .8s ease; }
+.reveal-right.in{ opacity:1; transform:translateX(0); }
+
+@keyframes glowPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(47,184,230,0.4);} 50%{ box-shadow:0 0 0 6px rgba(47,184,230,0);} }
+.pulse-dot{ width:7px; height:7px; border-radius:50%; background:var(--accent-lt); display:inline-block; animation:glowPulse 2.2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div id="globe-canvas"></div>
+
+<nav class="site-nav" id="site-nav">
+  <div class="wrap">
+    <a href="#home" class="brand">
+      <span class="brand-mark">J</span>
+      <span class="brand-name">Jalix<small>Global Freight — Est. 2016</small></span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#home" data-section="home">Home</a></li>
+      <li><a href="#services" data-section="services">Services</a></li>
+      <li><a href="#about" data-section="about">About</a></li>
+      <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="home" style="padding:0;">
+  <header class="hero" id="hero-spotlight">
+    <div class="hero-bg-lines"></div>
+    <div class="blob-field">
+      <div class="blob blob-accent blob-1"></div>
+      <div class="blob blob-panel blob-2"></div>
+      <div class="blob blob-deep blob-3"></div>
+    </div>
+    <div class="spotlight" id="hero-spot"></div>
+    <div class="wrap" id="hero-parallax">
+      <div class="hero-copy">
+        <div class="eyebrow reveal in"><span class="pulse-dot"></span>&nbsp;MANIFEST NO. JLX-2026-0842</div>
+        <h1 class="reveal in reveal-delay-1">Cargo moves.<br>Borders <em>don't slow it down.</em></h1>
+        <p class="hero-sub reveal in reveal-delay-2">Jalix is the import–export partner routing freight across 40+ ports by ocean, air, and road — customs cleared before you have to ask.</p>
+        <div class="hero-actions reveal in reveal-delay-3">
+          <a href="#contact" class="btn btn-primary">Request a Rate →</a>
+          <a href="#services" class="btn btn-ghost">View Services</a>
+        </div>
+      </div>
+      <div></div>
+    </div>
+  </header>
+
+  <div class="ticker">
+    <div class="ticker-track" id="ticker-track">
+      <span>Shanghai — 31.2°N 121.5°E</span><span>Rotterdam — 51.9°N 4.5°E</span><span>Singapore — 1.3°N 103.8°E</span><span>Dubai — 25.2°N 55.3°E</span><span>Los Angeles — 33.7°N 118.2°W</span><span>Santos — 23.9°S 46.3°W</span><span>Mumbai — 19.1°N 72.9°E</span><span>New York — 40.7°N 74.0°W</span>
+      <span>Shanghai — 31.2°N 121.5°E</span><span>Rotterdam — 51.9°N 4.5°E</span><span>Singapore — 1.3°N 103.8°E</span><span>Dubai — 25.2°N 55.3°E</span><span>Los Angeles — 33.7°N 118.2°W</span><span>Santos — 23.9°S 46.3°W</span><span>Mumbai — 19.1°N 72.9°E</span><span>New York — 40.7°N 74.0°W</span>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="wrap">
+      <div class="stats-grid">
+        <div class="stat glass reveal-scale"><div class="num" data-count="42">0</div><div class="label">Ports Served</div></div>
+        <div class="stat glass reveal-scale reveal-delay-1"><div class="num" data-count="118000" data-suffix="+">0</div><div class="label">Tonnes Shipped / Yr</div></div>
+        <div class="stat glass reveal-scale reveal-delay-2"><div class="num" data-count="61">0</div><div class="label">Countries Cleared</div></div>
+        <div class="stat glass reveal-scale reveal-delay-3"><div class="num" data-count="98.4" data-suffix="%">0</div><div class="label">On-Time Delivery</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:110px 0 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">What We Move</div>
+        <h2>One forwarder. Every mode.</h2>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="card-grid">
+        <div class="service-card glass-light tilt reveal-scale"><div class="tag">OCEAN</div><h3>Ocean Freight</h3><p>FCL and LCL container bookings on 30+ carrier alliances, with live vessel tracking from berth to berth.</p></div>
+        <div class="service-card glass-light tilt reveal-scale reveal-delay-1"><div class="tag">AIR</div><h3>Air Freight</h3><p>Time-critical cargo on scheduled and charter lanes, consolidated for weight-break savings.</p></div>
+        <div class="service-card glass-light tilt reveal-scale reveal-delay-2"><div class="tag">CUSTOMS</div><h3>Customs Brokerage</h3><p>Licensed brokers in 61 countries pre-clear entries before your cargo reaches the border.</p></div>
+        <div class="service-card glass-light tilt reveal-scale reveal-delay-3"><div class="tag">GROUND</div><h3>Warehousing &amp; Distribution</h3><p>Bonded warehousing, cross-docking, and last-mile distribution from 14 regional hubs.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:110px 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">How a Shipment Moves</div>
+        <h2>Quote to delivery, in five steps.</h2>
+      </div>
+      <div class="process reveal">
+        <div class="process-step"><div class="step-no">01</div><h4>Quote</h4><p>Submit cargo details, get a landed-cost rate within one business day.</p></div>
+        <div class="process-step"><div class="step-no">02</div><h4>Pickup</h4><p>We collect from your dock or factory and consolidate at origin.</p></div>
+        <div class="process-step"><div class="step-no">03</div><h4>Customs</h4><p>Export and import entries filed ahead of arrival, not after.</p></div>
+        <div class="process-step"><div class="step-no">04</div><h4>Transit</h4><p>Ocean, air, or road — tracked continuously against your ETA.</p></div>
+        <div class="process-step"><div class="step-no">05</div><h4>Delivery</h4><p>Final-mile handoff with proof of delivery and duty reconciliation.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:110px 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Featured Lanes</div>
+        <h2>Where our cargo runs most.</h2>
+      </div>
+      <div class="glass reveal-scale" style="padding:8px; overflow-x:auto;">
+        <table class="lane-table">
+          <thead><tr><th>Route</th><th>Origin</th><th>Destination</th><th>Avg. Transit</th><th>Mode</th></tr></thead>
+          <tbody>
+            <tr><td class="lane-route">Shanghai — Rotterdam</td><td class="mono">31.2°N 121.5°E</td><td class="mono">51.9°N 4.5°E</td><td style="color:var(--fog);">27 days</td><td style="color:var(--fog);">Ocean</td></tr>
+            <tr><td class="lane-route">Los Angeles — Shanghai</td><td class="mono">33.7°N 118.2°W</td><td class="mono">31.2°N 121.5°E</td><td style="color:var(--fog);">16 days</td><td style="color:var(--fog);">Ocean</td></tr>
+            <tr><td class="lane-route">Singapore — Dubai</td><td class="mono">1.3°N 103.8°E</td><td class="mono">25.2°N 55.3°E</td><td style="color:var(--fog);">11 days</td><td style="color:var(--fog);">Ocean</td></tr>
+            <tr><td class="lane-route">Mumbai — New York</td><td class="mono">19.1°N 72.9°E</td><td class="mono">40.7°N 74.0°W</td><td style="color:var(--fog);">36 hrs</td><td style="color:var(--fog);">Air</td></tr>
+            <tr><td class="lane-route">Santos — Rotterdam</td><td class="mono">23.9°S 46.3°W</td><td class="mono">51.9°N 4.5°E</td><td style="color:var(--fog);">19 days</td><td style="color:var(--fog);">Ocean</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services" style="padding:0;">
+  <div class="section-intro">
+    <div class="blob-field">
+      <div class="blob blob-accent blob-1"></div>
+      <div class="blob blob-panel blob-2"></div>
+    </div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="eyebrow reveal in">What We Do</div>
+      <h2 class="reveal in reveal-delay-1">Four services. One manifest number.</h2>
+      <p class="lede reveal in reveal-delay-2">Every mode of transport and every customs entry runs through the same account team — so nothing gets lost between departments.</p>
+    </div>
+  </div>
+
+  <div style="padding:80px 0;">
+    <div class="wrap">
+
+      <div class="service-detail">
+        <div class="sd-visual tilt reveal-left">
+          <svg width="70%" viewBox="0 0 200 140" fill="none">
+            <rect x="20" y="60" width="160" height="55" rx="2" fill="#14607F" stroke="#2FB8E6" stroke-width="1.5"/>
+            <line x1="20" y1="80" x2="180" y2="80" stroke="#2FB8E6" stroke-width="1"/>
+            <line x1="20" y1="98" x2="180" y2="98" stroke="#2FB8E6" stroke-width="1"/>
+            <line x1="60" y1="60" x2="60" y2="115" stroke="#2FB8E6" stroke-width="1"/>
+            <line x1="100" y1="60" x2="100" y2="115" stroke="#2FB8E6" stroke-width="1"/>
+            <line x1="140" y1="60" x2="140" y2="115" stroke="#2FB8E6" stroke-width="1"/>
+            <path d="M10 60 Q100 20 190 60" stroke="#8FE6FA" stroke-width="1" fill="none" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+        <div class="sd-copy reveal-right">
+          <div class="eyebrow">Ocean Freight</div>
+          <h3>FCL &amp; LCL, 30+ carrier alliances</h3>
+          <p>Full-container and less-than-container-load bookings across the world's major shipping alliances, with live vessel position tracking from the moment cargo is loaded.</p>
+          <ul class="sd-list">
+            <li>Transit visibility <span class="val">Berth-to-berth</span></li>
+            <li>Booking lead time <span class="val">48 hrs</span></li>
+            <li>Container types <span class="val">Dry, reefer, flat-rack</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="service-detail reverse">
+        <div class="sd-visual tilt reveal-right">
+          <svg width="65%" viewBox="0 0 200 140" fill="none">
+            <path d="M100 20 L160 70 L130 70 L130 120 L70 120 L70 70 L40 70 Z" fill="none" stroke="#2FB8E6" stroke-width="1.5"/>
+            <line x1="20" y1="105" x2="180" y2="105" stroke="#8FE6FA" stroke-width="1" stroke-dasharray="3 5"/>
+          </svg>
+        </div>
+        <div class="sd-copy reveal-left">
+          <div class="eyebrow">Air Freight</div>
+          <h3>Scheduled &amp; charter, weight-break consolidation</h3>
+          <p>For cargo that can't wait on the water — pharmaceuticals, electronics, seasonal goods — we consolidate shipments to hit the best weight-break rate on scheduled and charter lanes.</p>
+          <ul class="sd-list">
+            <li>Fastest transit <span class="val">18 hrs</span></li>
+            <li>Cargo types <span class="val">General, temp-controlled</span></li>
+            <li>Booking lead time <span class="val">24 hrs</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="service-detail">
+        <div class="sd-visual tilt reveal-left">
+          <svg width="60%" viewBox="0 0 200 140" fill="none">
+            <circle cx="100" cy="70" r="46" fill="none" stroke="#2FB8E6" stroke-width="1.5"/>
+            <path d="M100 30 A40 40 0 0 1 138 90" stroke="#8FE6FA" stroke-width="2" fill="none"/>
+            <text x="100" y="76" text-anchor="middle" fill="#8FE6FA" font-family="monospace" font-size="13">CLEARED</text>
+          </svg>
+        </div>
+        <div class="sd-copy reveal-right">
+          <div class="eyebrow">Customs Brokerage</div>
+          <h3>Licensed in 61 countries</h3>
+          <p>Our brokers file export and import entries while cargo is still in transit, so clearance is done before the vessel or aircraft even arrives — not a scramble after.</p>
+          <ul class="sd-list">
+            <li>Pre-arrival filing <span class="val">Standard</span></li>
+            <li>Licensed jurisdictions <span class="val">61 countries</span></li>
+            <li>HS classification review <span class="val">Included</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="service-detail reverse">
+        <div class="sd-visual tilt reveal-right">
+          <svg width="70%" viewBox="0 0 200 140" fill="none">
+            <rect x="30" y="40" width="140" height="70" rx="2" fill="none" stroke="#2FB8E6" stroke-width="1.5"/>
+            <rect x="45" y="55" width="30" height="20" fill="#2FB8E6" opacity="0.5"/>
+            <rect x="85" y="55" width="30" height="20" fill="#2FB8E6" opacity="0.3"/>
+            <rect x="125" y="55" width="30" height="20" fill="#2FB8E6" opacity="0.7"/>
+            <rect x="45" y="85" width="30" height="15" fill="#2FB8E6" opacity="0.4"/>
+            <rect x="85" y="85" width="30" height="15" fill="#2FB8E6" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="sd-copy reveal-left">
+          <div class="eyebrow">Warehousing &amp; Distribution</div>
+          <h3>14 bonded regional hubs</h3>
+          <p>Bonded warehousing lets cargo sit duty-deferred until it's needed, while cross-docking and last-mile distribution get it to the final destination without a second handler.</p>
+          <ul class="sd-list">
+            <li>Regional hubs <span class="val">14</span></li>
+            <li>Storage type <span class="val">Bonded &amp; general</span></li>
+            <li>Last-mile coverage <span class="val">Same-region, 48 hrs</span></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section-dark" style="padding:90px 0;">
+    <div class="blob-field"><div class="blob blob-panel blob-1"></div><div class="blob blob-accent blob-3"></div></div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="section-head reveal">
+        <div class="eyebrow">Pricing Shape</div>
+        <h2>How a quote is built.</h2>
+      </div>
+      <div class="glass reveal-scale" style="padding:8px; overflow-x:auto;">
+        <table class="lane-table" style="color:var(--fog);">
+          <thead><tr><th>Component</th><th>Ocean FCL</th><th>Ocean LCL</th><th>Air</th></tr></thead>
+          <tbody>
+            <tr><td>Freight (base rate)</td><td class="mono">Per container</td><td class="mono">Per cbm</td><td class="mono">Per kg (chargeable)</td></tr>
+            <tr><td>Customs entry</td><td class="mono">Flat fee</td><td class="mono">Flat fee</td><td class="mono">Flat fee</td></tr>
+            <tr><td>Origin handling</td><td class="mono">Included</td><td class="mono">Included</td><td class="mono">Included</td></tr>
+            <tr><td>Destination delivery</td><td class="mono">Quoted separately</td><td class="mono">Quoted separately</td><td class="mono">Quoted separately</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" style="padding:0;">
+  <div class="section-intro">
+    <div class="blob-field">
+      <div class="blob blob-accent blob-2"></div>
+      <div class="blob blob-panel blob-1"></div>
+    </div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="eyebrow reveal in">Our Story</div>
+      <h2 class="reveal in reveal-delay-1">Built by people who've worked the docks, not just the spreadsheets.</h2>
+      <p class="lede reveal in reveal-delay-2">Jalix started with one broker, one warehouse, and a Rotterdam berth number. A decade later, we clear cargo through 61 countries — but we still answer the phone ourselves.</p>
+    </div>
+  </div>
+
+  <div style="padding:90px 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Timeline</div>
+        <h2>A decade on the water.</h2>
+      </div>
+      <div class="timeline reveal">
+        <div class="tl-item"><div class="yr">2016</div><h4>Founded in Rotterdam</h4><p>Started as a two-person customs brokerage working a single berth at Rotterdam's Maasvlakte terminal.</p></div>
+        <div class="tl-item"><div class="yr">2018</div><h4>First transpacific lane</h4><p>Opened ocean freight service between Shanghai and Los Angeles, our first FCL contract with a major carrier alliance.</p></div>
+        <div class="tl-item"><div class="yr">2020</div><h4>Air freight division launched</h4><p>Added time-critical air cargo to handle pandemic-era medical and electronics shipments across 18 new lanes.</p></div>
+        <div class="tl-item"><div class="yr">2022</div><h4>Licensed in 40 countries</h4><p>Expanded customs brokerage licensing to cover most of Asia-Pacific, the Gulf, and South America.</p></div>
+        <div class="tl-item"><div class="yr">2025</div><h4>14 regional warehouses</h4><p>Opened bonded warehousing and cross-dock hubs to shorten last-mile delivery on high-volume lanes.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-dark" style="padding:90px 0;">
+    <div class="blob-field"><div class="blob blob-accent blob-1"></div><div class="blob blob-panel blob-2"></div></div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="section-head reveal">
+        <div class="eyebrow">What We Believe</div>
+        <h2>Three rules we don't bend on.</h2>
+      </div>
+      <div class="card-grid">
+        <div class="service-card glass tilt reveal-scale" style="color:var(--fog);"><div class="tag" style="color:var(--accent-lt);">01</div><h3 style="color:var(--fog);">Clear before it lands</h3><p style="color:#BBDEE6;">Customs paperwork gets filed while cargo is still at sea or in the air — never after it arrives.</p></div>
+        <div class="service-card glass tilt reveal-scale reveal-delay-1" style="color:var(--fog);"><div class="tag" style="color:var(--accent-lt);">02</div><h3 style="color:var(--fog);">One point of contact</h3><p style="color:#BBDEE6;">Your account manager handles the booking, the broker, and the warehouse — not three different departments.</p></div>
+        <div class="service-card glass tilt reveal-scale reveal-delay-2" style="color:var(--fog);"><div class="tag" style="color:var(--accent-lt);">03</div><h3 style="color:var(--fog);">Say the real ETA</h3><p style="color:#BBDEE6;">If a lane is delayed, you hear it from us first, with a revised date, not a status page.</p></div>
+        <div class="service-card glass tilt reveal-scale reveal-delay-3" style="color:var(--fog);"><div class="tag" style="color:var(--accent-lt);">—</div><h3 style="color:var(--fog);">Still growing</h3><p style="color:#BBDEE6;">42 ports today. We add a new lane roughly every six weeks, usually because a customer asked first.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:90px 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Leadership</div>
+        <h2>The people running the network.</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card reveal-scale"><div class="avatar glass tilt" data-initials="RV"></div><h4>Renata Voss</h4><div class="role">Co-Founder &amp; CEO</div></div>
+        <div class="team-card reveal-scale reveal-delay-1"><div class="avatar glass tilt" data-initials="TO"></div><h4>Tomás Ochoa</h4><div class="role">Co-Founder &amp; Head of Ocean Freight</div></div>
+        <div class="team-card reveal-scale reveal-delay-2"><div class="avatar glass tilt" data-initials="AK"></div><h4>Amara Kanu</h4><div class="role">Director of Customs Brokerage</div></div>
+        <div class="team-card reveal-scale reveal-delay-3"><div class="avatar glass tilt" data-initials="LP"></div><h4>Lars Pettersen</h4><div class="role">Head of Warehousing &amp; Distribution</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding:0;">
+  <div class="section-intro">
+    <div class="blob-field">
+      <div class="blob blob-accent blob-3"></div>
+      <div class="blob blob-panel blob-2"></div>
+    </div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="eyebrow reveal in">Get in Touch</div>
+      <h2 class="reveal in reveal-delay-1">Request a rate, or just ask a question.</h2>
+      <p class="lede reveal in reveal-delay-2">Tell us what you're moving and where it's going. A rate specialist replies within one business day.</p>
+    </div>
+  </div>
+
+  <div style="padding:90px 0;">
+    <div class="wrap">
+      <div class="contact-grid">
+
+        <div class="reveal-left glass-light" style="padding:32px;">
+          <div class="eyebrow" style="margin-bottom:20px;">Shipment Details</div>
+          <form id="quote-form" onsubmit="event.preventDefault(); document.getElementById('form-success').style.display='block'; this.style.display='none';">
+            <div class="form-field"><label for="name">Full name</label><input type="text" id="name" name="name" required placeholder="Jordan Reyes"></div>
+            <div class="form-field"><label for="company">Company</label><input type="text" id="company" name="company" required placeholder="Your company name"></div>
+            <div class="form-field"><label for="email">Email</label><input type="email" id="email" name="email" required placeholder="you@company.com"></div>
+            <div class="form-field">
+              <label for="mode">Preferred mode</label>
+              <select id="mode" name="mode">
+                <option>Ocean — FCL</option>
+                <option>Ocean — LCL</option>
+                <option>Air Freight</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="form-field"><label for="route">Origin → Destination</label><input type="text" id="route" name="route" placeholder="e.g. Shanghai → Rotterdam"></div>
+            <div class="form-field"><label for="details">Cargo details</label><textarea id="details" name="details" rows="4" placeholder="Commodity, volume, target ship date..."></textarea></div>
+            <button type="submit" class="btn btn-primary">Submit Request →</button>
+            <p class="form-note">This is a demo form — no data is transmitted. In production, connect this to your CRM or quoting system.</p>
+          </form>
+          <div id="form-success" style="display:none; padding:22px; background:rgba(6,38,59,0.9); color:var(--fog); border-radius:10px; margin-top:16px;">
+            <strong style="font-family:var(--display); font-weight:700; color:var(--accent-lt); font-size:18px;">Request received</strong>
+            <p style="color:#BBDEE6; margin-top:8px; font-size:14.5px;">A rate specialist will reply within one business day with a manifest number and quote.</p>
+          </div>
+        </div>
+
+        <div class="reveal-right">
+          <div class="eyebrow" style="margin-bottom:20px;">Our Offices</div>
+          <div class="offices" style="display:flex; flex-direction:column; gap:14px;">
+            <div class="office glass-light tilt" style="padding:22px 24px;"><div class="city">Rotterdam <span style="font-family:var(--mono); font-size:12px; color:var(--steel);">HQ</span></div><div class="coords">51.9°N 4.5°E</div><div class="addr">Maasvlakte Terminal Complex, Rotterdam, Netherlands</div></div>
+            <div class="office glass-light tilt" style="padding:22px 24px;"><div class="city">Singapore</div><div class="coords">1.3°N 103.8°E</div><div class="addr">Tanjong Pagar Freight District, Singapore</div></div>
+            <div class="office glass-light tilt" style="padding:22px 24px;"><div class="city">Los Angeles</div><div class="coords">33.7°N 118.2°W</div><div class="addr">Port of Long Beach Logistics Park, California, USA</div></div>
+            <div class="office glass-light tilt" style="padding:22px 24px;"><div class="city">Dubai</div><div class="coords">25.2°N 55.3°E</div><div class="addr">Jebel Ali Free Zone, Dubai, UAE</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band" style="position:relative;">
+    <div class="blob-field"><div class="blob blob-accent blob-1"></div><div class="blob blob-panel blob-3"></div></div>
+    <div class="wrap" style="position:relative; z-index:2;">
+      <div class="reveal-scale">
+        <div class="eyebrow" style="justify-content:center; color:var(--accent-lt);">Ready to Ship</div>
+        <h2>Get your cargo a manifest number today.</h2>
+        <div class="cta-actions">
+          <a href="#contact" class="btn btn-primary" onclick="document.getElementById('name').focus()">Request a Rate →</a>
+          <a href="#about" class="btn btn-ghost">Meet the Team</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h5>Jalix</h5>
+        <p>Freight forwarding and customs brokerage connecting 42 ports across 61 countries since 2016.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul><li><a href="#about">About</a></li><li><a href="#services">Services</a></li><li><a href="#contact">Contact</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul><li><a href="#services">Ocean Freight</a></li><li><a href="#services">Air Freight</a></li><li><a href="#services">Customs Brokerage</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Headquarters</h5>
+        <p style="font-family:var(--mono); font-size:12px;">51.9°N 4.5°E<br>Rotterdam, Netherlands</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Jalix</span>
+      <span>JLX LICENSE NO. 20164-RTM</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const container = document.getElementById('globe-canvas');
+  if(!container || typeof THREE === 'undefined') return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let width = container.clientWidth, height = container.clientHeight;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, width/height, 0.1, 100);
+  camera.position.set(0, 0.4, 6.6);
+  const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(width, height);
+  container.appendChild(renderer.domElement);
+  const globeGroup = new THREE.Group();
+  scene.add(globeGroup);
+  const RADIUS = 2.15;
+  const icoGeo = new THREE.IcosahedronGeometry(RADIUS, 3);
+  const edges = new THREE.EdgesGeometry(icoGeo);
+  const wire = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:0x1C4B5E, transparent:true, opacity:0.6 }));
+  globeGroup.add(wire);
+  const coreMat = new THREE.MeshBasicMaterial({ color:0x06263B, transparent:true, opacity:0.5 });
+  const core = new THREE.Mesh(new THREE.SphereGeometry(RADIUS - 0.01, 48, 48), coreMat);
+  globeGroup.add(core);
+  const PORTS = [
+    { name:'Shanghai',    lat:31.2,  lon:121.5 },
+    { name:'Rotterdam',   lat:51.9,  lon:4.5   },
+    { name:'Los Angeles', lat:33.7,  lon:-118.2},
+    { name:'Singapore',   lat:1.3,   lon:103.8 },
+    { name:'Dubai',       lat:25.2,  lon:55.3  },
+    { name:'Santos',      lat:-23.9, lon:-46.3 },
+    { name:'Mumbai',      lat:19.1,  lon:72.9  },
+    { name:'New York',    lat:40.7,  lon:-74.0 },
+  ];
+  const LANES = [
+    ['Shanghai','Rotterdam'], ['Los Angeles','Shanghai'], ['Singapore','Dubai'],
+    ['Rotterdam','New York'], ['Mumbai','Dubai'], ['Santos','Rotterdam'],
+    ['Singapore','Los Angeles'], ['Mumbai','Singapore'],
+  ];
+  function latLonToVec3(lat, lon, r){
+    const phi = (90 - lat) * (Math.PI/180);
+    const theta = (lon + 180) * (Math.PI/180);
+    return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
+  }
+  const portMap = {};
+  PORTS.forEach(p => { portMap[p.name] = latLonToVec3(p.lat, p.lon, RADIUS); });
+  const portMat = new THREE.MeshBasicMaterial({ color:0x8FE6FA });
+  PORTS.forEach(p => {
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.028, 12, 12), portMat);
+    dot.position.copy(portMap[p.name]);
+    globeGroup.add(dot);
+  });
+  const pulses = [];
+  const arcMat = new THREE.LineBasicMaterial({ color:0x2FB8E6, transparent:true, opacity:0.45 });
+  LANES.forEach(([a,b]) => {
+    const start = portMap[a], end = portMap[b];
+    const mid = start.clone().add(end).multiplyScalar(0.5);
+    const liftScale = 1 + start.distanceTo(end) / RADIUS * 0.35;
+    mid.normalize().multiplyScalar(RADIUS * liftScale);
+    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+    const points = curve.getPoints(48);
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geo, arcMat);
+    globeGroup.add(line);
+    const pulseGeo = new THREE.SphereGeometry(0.032, 10, 10);
+    const pulseMat = new THREE.MeshBasicMaterial({ color:0xCFF3FF });
+    const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+    pulse.userData = { curve, t: Math.random(), speed: 0.09 + Math.random()*0.05 };
+    globeGroup.add(pulse);
+    pulses.push(pulse);
+  });
+  globeGroup.rotation.x = 0.15;
+  globeGroup.rotation.y = -0.6;
+  function resize(){
+    width = container.clientWidth; height = container.clientHeight;
+    camera.aspect = width/height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+  }
+  window.addEventListener('resize', resize);
+  const clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt = clock.getDelta();
+    if(!prefersReduced){
+      globeGroup.rotation.y += dt * 0.09;
+      pulses.forEach(p => {
+        p.userData.t += dt * p.userData.speed;
+        if(p.userData.t > 1) p.userData.t = 0;
+        const pos = p.userData.curve.getPoint(p.userData.t);
+        p.position.copy(pos);
+      });
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const nav = document.getElementById('site-nav');
+  const onScroll = () => { if(window.scrollY > 40){ nav.classList.add('solid'); } else { nav.classList.remove('solid'); } };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive:true });
+
+  const toggle = document.querySelector('.nav-toggle');
+  const links = document.getElementById('nav-links');
+  if(toggle && links){
+    toggle.addEventListener('click', () => links.classList.toggle('open'));
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
+  }
+
+  const reveals = document.querySelectorAll('.reveal, .reveal-scale, .reveal-left, .reveal-right');
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:0.15 });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
+
+  const stats = document.querySelectorAll('.stat .num[data-count]');
+  if(stats.length && 'IntersectionObserver' in window){
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          const el = e.target;
+          const target = parseFloat(el.dataset.count);
+          const suffix = el.dataset.suffix || '';
+          const decimals = el.dataset.count.includes('.') ? el.dataset.count.split('.')[1].length : 0;
+          const dur = 1400; const start = performance.now();
+          const step = (now) => {
+            const p = Math.min((now - start) / dur, 1);
+            const eased = 1 - Math.pow(1-p, 3);
+            el.textContent = (target * eased).toFixed(decimals) + suffix;
+            if(p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+          io2.unobserve(el);
+        }
+      });
+    }, { threshold:0.5 });
+    stats.forEach(s => io2.observe(s));
+  }
+
+  const navAnchors = document.querySelectorAll('#nav-links a[data-section]');
+  const sections = ['home','services','about','contact'].map(id => document.getElementById(id));
+  if('IntersectionObserver' in window){
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          navAnchors.forEach(a => a.classList.toggle('active', a.dataset.section === e.target.id));
+        }
+      });
+    }, { threshold:0.3, rootMargin:'-100px 0px -60% 0px' });
+    sections.forEach(s => { if(s) spy.observe(s); });
+  }
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const hero = document.getElementById('hero-spotlight');
+  const spot = document.getElementById('hero-spot');
+  if(hero && spot && !prefersReduced){
+    hero.addEventListener('mousemove', (e) => {
+      const r = hero.getBoundingClientRect();
+      spot.style.setProperty('--sx', ((e.clientX - r.left) / r.width * 100) + '%');
+      spot.style.setProperty('--sy', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  }
+
+  const parallaxEl = document.getElementById('hero-parallax');
+  if(parallaxEl && !prefersReduced){
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if(y < window.innerHeight){
+        parallaxEl.style.transform = 'translateY(' + (y * 0.18) + 'px)';
+        parallaxEl.style.opacity = String(Math.max(1 - y / 700, 0));
+      }
+    }, { passive:true });
+  }
+
+  if(!prefersReduced){
+    document.querySelectorAll('.tilt').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        card.style.transition = 'box-shadow .35s ease, border-color .35s ease';
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(700px) rotateX(${(-py * 8).toFixed(2)}deg) rotateY(${(px * 10).toFixed(2)}deg) translateY(-4px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform .5s ease, box-shadow .35s ease, border-color .35s ease';
+        card.style.transform = '';
+      });
+    });
+  }
+
+  const ticker = document.getElementById('ticker-track');
+  if(ticker){
+    ticker.addEventListener('mouseenter', () => { ticker.style.animationPlayState = 'paused'; });
+    ticker.addEventListener('mouseleave', () => { ticker.style.animationPlayState = 'running'; });
+  }
+});
+</script>
+</body>
+</html>

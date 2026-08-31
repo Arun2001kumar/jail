@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80">
+  <defs>
+    <style>
+      .ring{fill:#0A3850;stroke:#2FB8E6}.globe{fill:none;stroke:#8FE6FA}.route{fill:none;stroke:#2FD3B0;stroke-linecap:round;stroke-linejoin:round}.node{fill:#8FE6FA}.j{fill:#EAF6F8}.word{font-family:Arial,Helvetica,sans-serif;font-weight:700;letter-spacing:8px;fill:#EAF6F8}.accent{fill:#8FE6FA}.tag{font-family:monospace;letter-spacing:2px;fill:#8FB4BE}
+    </style>
+  </defs>
+  <g transform="translate(8 8)">
+    <circle class="ring" cx="32" cy="32" r="27" stroke-width="1.8"/>
+    <ellipse class="globe" cx="32" cy="32" rx="14" ry="27" stroke-width="1.15"/>
+    <path class="globe" d="M7 32h50M11 21c12 6 30 6 42 0M11 43c12-6 30-6 42 0" stroke-width="1.05"/>
+    <path class="route" d="M14 41C23 31 31 27 49 20" stroke-width="2.6"/>
+    <path class="route" d="M44.5 19.2 50 19.5 47.5 24" stroke-width="2.6"/>
+    <circle class="node" cx="14" cy="41" r="2.3"/>
+    <path class="j" d="M35.8 17.8h6v19.4c0 7.2-4.4 11.4-11.6 11.4-5.9 0-10-3.1-11.2-8.5l5.8-1.4c.7 2.8 2.5 4.4 5.2 4.4 3.8 0 5.8-2.1 5.8-6.2V17.8Z" opacity=".96"/>
+  </g>
+  <text x="82" y="40" class="word" font-size="30">JAL<tspan class="accent">IX</tspan></text>
+  <text x="84" y="61" class="tag" font-size="8">GLOBAL FREIGHT — EST. 2016</text>
+</svg>
